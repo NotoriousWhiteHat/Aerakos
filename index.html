@@ -13,7 +13,7 @@
         }
 
         body {
-            background: #0a1628;
+            background: #001c2f;
             overflow: hidden;
             font-family: 'Cinzel', serif;
             font-weight: 300;
@@ -89,6 +89,53 @@
                 transparent
             );
             animation: scan 2s linear infinite;
+        }
+
+        .continue-button {
+            margin-top: 40px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.8s ease;
+            display: inline-block;
+            padding: 15px 50px;
+            background: transparent;
+            border: 1px solid #e4d5b7;
+            color: #e4d5b7;
+            font-family: 'Cinzel', serif;
+            font-weight: 300;
+            font-size: 16px;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            text-decoration: none;
+        }
+
+        .continue-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(228, 213, 183, 0.1);
+            transition: left 0.3s ease;
+        }
+
+        .continue-button:hover {
+            border-color: #fff;
+            color: #fff;
+            box-shadow: 0 0 20px rgba(228, 213, 183, 0.3);
+        }
+
+        .continue-button:hover::before {
+            left: 0;
+        }
+
+        .continue-button.show {
+            opacity: 1;
+            transform: translateY(0);
         }
 
         @keyframes float {
@@ -172,6 +219,8 @@
         <div class="loading-bar-container">
             <div class="loading-bar"></div>
         </div>
+        
+        <a href="main.html" class="continue-button" id="continueBtn">Enter</a>
     </div>
 
     <script>
@@ -260,13 +309,13 @@
 
         // Animation loop
         function animate() {
-            // Create gradient background
+            // Create gradient background with new color
             const gradient = ctx.createRadialGradient(
                 canvas.width / 2, canvas.height / 2, 0,
                 canvas.width / 2, canvas.height / 2, canvas.width / 2
             );
-            gradient.addColorStop(0, 'rgba(10, 22, 40, 0.3)');
-            gradient.addColorStop(1, 'rgba(10, 22, 40, 0.9)');
+            gradient.addColorStop(0, 'rgba(0, 28, 47, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 28, 47, 0.9)');
             
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -308,10 +357,12 @@
         // Start animation
         animate();
 
-        // Simulate loading completion (remove this in production)
+        // Show continue button after loading
         setTimeout(() => {
-            // You can redirect or trigger your main content here
-            console.log('Loading complete!');
+            document.getElementById('continueBtn').classList.add('show');
+            // Stop the loading bar animation
+            document.querySelector('.loading-bar').style.animation = 'none';
+            document.querySelector('.loading-bar').style.left = '100%';
         }, 5000);
     </script>
 </body>
