@@ -260,13 +260,13 @@
 
         // Animation loop
         function animate() {
-            // Create gradient background
+            // Create gradient background with new color
             const gradient = ctx.createRadialGradient(
                 canvas.width / 2, canvas.height / 2, 0,
                 canvas.width / 2, canvas.height / 2, canvas.width / 2
             );
-            gradient.addColorStop(0, 'rgba(10, 22, 40, 0.3)');
-            gradient.addColorStop(1, 'rgba(10, 22, 40, 0.9)');
+            gradient.addColorStop(0, 'rgba(0, 28, 47, 0.3)');
+            gradient.addColorStop(1, 'rgba(0, 28, 47, 0.9)');
             
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
