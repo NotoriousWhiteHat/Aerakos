@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aerakos Loading</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #000;
+            overflow: hidden;
+            font-family: 'Cinzel', serif;
+            font-weight: 300;
+        }
+
+        #canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+        }
+
+        .loader-container {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            text-align: center;
+        }
+
+        .logo-wrapper {
+            width: 300px;
+            height: 300px;
+            position: relative;
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .logo {
+            width: 100%;
+            height: 100%;
+            filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5));
+            animation: pulse 3s ease-in-out infinite;
+        }
+
+        .logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: brightness(1.2) contrast(1.1);
+        }
+
+        .loading-text {
+            margin-top: 40px;
+            font-size: 24px;
+            letter-spacing: 8px;
+            color: #fff;
+            text-transform: uppercase;
+            animation: fadeInOut 2s ease-in-out infinite;
+        }
+
+        .loading-bar-container {
+            width: 300px;
+            height: 2px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 30px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .loading-bar {
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.8), 
+                transparent
+            );
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+            0%, 100% { 
+                transform: scale(1);
+                filter: drop-shadow(0 0 30px rgba(255, 255, 255, 0.5));
+            }
+            50% { 
+                transform: scale(1.05);
+                filter: drop-shadow(0 0 50px rgba(255, 255, 255, 0.8));
+            }
+        }
+
+        @keyframes fadeInOut {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            opacity: 0;
+            animation: particle-float 10s linear infinite;
+        }
+
+        @keyframes particle-float {
+            0% {
+                opacity: 0;
+                transform: translateY(100vh) translateX(0);
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0;
+                transform: translateY(-100vh) translateX(100px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="canvas"></canvas>
+    
+    <div class="particles" id="particles"></div>
+    
+    <div class="loader-container">
+        <div class="logo-wrapper">
+            <div class="logo">
+                <img src="https://i.imgur.com/OCkpXbi.png" alt="Aerakos Logo">
+            </div>
+        </div>
+        
+        <div class="loading-text">Aerakos</div>
+        
+        <div class="loading-bar-container">
+            <div class="loading-bar"></div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        // Star field
+        const stars = [];
+        const starCount = 1000;
+        const layers = 3;
+
+        class Star {
+            constructor(layer) {
+                this.layer = layer;
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.z = Math.random() * 1000;
+                this.size = Math.random() * 2;
+                this.speed = (4 - layer) * 0.5;
+                this.brightness = Math.random();
+            }
+
+            update() {
+                this.z -= this.speed;
+                
+                if (this.z <= 0) {
+                    this.z = 1000;
+                    this.x = Math.random() * canvas.width;
+                    this.y = Math.random() * canvas.height;
+                }
+
+                this.brightness += (Math.random() - 0.5) * 0.1;
+                this.brightness = Math.max(0.3, Math.min(1, this.brightness));
+            }
+
+            draw() {
+                const x = (this.x - canvas.width / 2) * (1000 / this.z) + canvas.width / 2;
+                const y = (this.y - canvas.height / 2) * (1000 / this.z) + canvas.height / 2;
+                const size = this.size * (1000 / this.z);
+                const opacity = this.brightness * (1 - this.z / 1000);
+
+                ctx.beginPath();
+                ctx.arc(x, y, size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.fill();
+
+                // Add glow effect for brighter stars
+                if (this.brightness > 0.8) {
+                    ctx.shadowBlur = 10;
+                    ctx.shadowColor = 'white';
+                    ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            }
+        }
+
+        // Initialize stars
+        for (let i = 0; i < starCount; i++) {
+            stars.push(new Star(Math.floor(Math.random() * layers) + 1));
+        }
+
+        // Create floating particles
+        const particlesContainer = document.getElementById('particles');
+        for (let i = 0; i < 20; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 10 + 's';
+            particle.style.animationDuration = (10 + Math.random() * 10) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        // Animation loop
+        function animate() {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Draw and update stars
+            stars.forEach(star => {
+                star.update();
+                star.draw();
+            });
+
+            // Draw streaks for fast-moving stars
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i < 5; i++) {
+                const star = stars[Math.floor(Math.random() * stars.length)];
+                if (star.z < 200) {
+                    ctx.beginPath();
+                    const x = (star.x - canvas.width / 2) * (1000 / star.z) + canvas.width / 2;
+                    const y = (star.y - canvas.height / 2) * (1000 / star.z) + canvas.height / 2;
+                    const prevX = (star.x - canvas.width / 2) * (1000 / (star.z + star.speed * 10)) + canvas.width / 2;
+                    const prevY = (star.y - canvas.height / 2) * (1000 / (star.z + star.speed * 10)) + canvas.height / 2;
+                    
+                    ctx.moveTo(prevX, prevY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        // Handle resize
+        window.addEventListener('resize', () => {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        });
+
+        // Start animation
+        animate();
+
+        // Simulate loading completion (remove this in production)
+        setTimeout(() => {
+            // You can redirect or trigger your main content here
+            console.log('Loading complete!');
+        }, 5000);
+    </script>
+</body>
+</html>
