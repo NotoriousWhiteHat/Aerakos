@@ -215,6 +215,7 @@
             position: relative;
             transform-style: preserve-3d;
             transition: transform 0.1s ease;
+            transform: perspective(1000px) rotateX(-10deg) rotateY(0deg);
         }
 
         .avatar-frame {
@@ -230,6 +231,39 @@
             position: relative;
             padding: 5px;
             animation: glow 3s ease-in-out infinite;
+            transform: translateZ(50px);
+            box-shadow: 
+                0 0 30px rgba(228, 213, 183, 0.5),
+                0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .avatar-3d-model {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .avatar-angle {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            backface-visibility: hidden;
+        }
+
+        .avatar-angle.active {
+            opacity: 1;
+        }
+
+        .avatar-angle img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
         }
 
         @keyframes glow {
@@ -277,7 +311,7 @@
         }
 
         .founder-info .title::before {
-            content: 'Ἀρχηγός';
+            content: 'ΑΡΧΩΝ';
             display: block;
             font-size: 16px;
             opacity: 0.6;
@@ -409,7 +443,6 @@
         <div class="hero-content">
             <p class="greek-title">ΚΛΑΝ ΑΕΡΑΚΟΣ</p>
             <h1 class="clan-name">AERAKOS</h1>
-            <p class="tagline">HONOR • GLORY • VICTORY</p>
 
             <div class="founder-section">
                 <div class="founder-container">
@@ -419,9 +452,9 @@
                             <div class="avatar-3d" id="avatar3d">
                                 <div class="avatar-frame">
                                     <div class="avatar-inner">
-                                        <img src="https://tr.rbxcdn.com/180DAY-6de4a7d6e6d1d9cf9af606eb97c2fe45/500/500/Avatar/Webp/noFilter" 
-                                             alt="Restlessspell Avatar" 
-                                             class="avatar-image">
+                                        <div class="avatar-3d-model" id="avatar3dModel">
+                                            <!-- Multiple angles will be loaded here -->
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -430,16 +463,10 @@
 
                     <div class="founder-info">
                         <h2>RESTLESSSPELL</h2>
-                        <p class="title">Founder & Leader</p>
+                        <p class="title">Archon of Aerakos</p>
                         <div class="greek-divider"></div>
-                        <p class="founder-quote">"In unity we find strength, in battle we find glory, in Aerakos we find brotherhood."</p>
                     </div>
                 </div>
-            </div>
-
-            <div class="cta-section">
-                <a href="#join" class="cta-button primary">Join the Legion</a>
-                <a href="#battles" class="cta-button">View Conquests</a>
             </div>
         </div>
 
@@ -450,6 +477,43 @@
     </section>
 
     <script>
+        // Load 3D avatar views
+        const userId = 26223338; // Restlessspell's user ID
+        const avatar3dModel = document.getElementById('avatar3dModel');
+        
+        // Define camera angles for 3D effect
+        const angles = [
+            { x: 0, y: 0, name: 'front' },
+            { x: 0, y: 45, name: 'angle1' },
+            { x: 0, y: 90, name: 'right' },
+            { x: 0, y: 135, name: 'angle2' },
+            { x: 0, y: 180, name: 'back' },
+            { x: 0, y: 225, name: 'angle3' },
+            { x: 0, y: 270, name: 'left' },
+            { x: 0, y: 315, name: 'angle4' }
+        ];
+
+        // Load avatar images from different angles
+        angles.forEach((angle, index) => {
+            const angleDiv = document.createElement('div');
+            angleDiv.className = 'avatar-angle';
+            angleDiv.id = `angle-${index}`;
+            if (index === 0) angleDiv.classList.add('active');
+            
+            const img = document.createElement('img');
+            // Using Roblox 3D thumbnail API with camera position
+            img.src = `https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}&width=500&height=500&format=png&camera.x=${angle.x}&camera.y=${angle.y}`;
+            img.alt = `Restlessspell ${angle.name} view`;
+            
+            // Fallback to regular 3D thumbnail
+            img.onerror = function() {
+                this.src = `https://www.roblox.com/bust-thumbnail/image?userId=${userId}&width=420&height=420&format=png`;
+            };
+            
+            angleDiv.appendChild(img);
+            avatar3dModel.appendChild(angleDiv);
+        });
+
         // 3D Avatar rotation
         const avatarContainer = document.getElementById('avatarContainer');
         const avatar3d = document.getElementById('avatar3d');
@@ -460,10 +524,29 @@
         let rotateY = 0;
         let targetRotateX = -10;
         let targetRotateY = 0;
+        let currentAngleIndex = 0;
 
         // Auto-rotate when not interacting
         let autoRotate = true;
         let autoRotateSpeed = 0.3;
+
+        // Function to update visible angle based on rotation
+        function updateVisibleAngle(rotationY) {
+            // Normalize rotation to 0-360
+            let normalizedRotation = ((rotationY % 360) + 360) % 360;
+            
+            // Calculate which angle to show (8 angles, so each covers 45 degrees)
+            const angleIndex = Math.round(normalizedRotation / 45) % 8;
+            
+            if (angleIndex !== currentAngleIndex) {
+                // Hide current angle
+                document.querySelector('.avatar-angle.active')?.classList.remove('active');
+                
+                // Show new angle
+                document.getElementById(`angle-${angleIndex}`)?.classList.add('active');
+                currentAngleIndex = angleIndex;
+            }
+        }
 
         avatarContainer.addEventListener('mousedown', (e) => {
             isMouseDown = true;
@@ -480,6 +563,9 @@
 
             targetRotateY += deltaX * 0.5;
             targetRotateX -= deltaY * 0.5;
+
+            // Limit vertical rotation
+            targetRotateX = Math.max(-30, Math.min(30, targetRotateX));
 
             mouseX = e.clientX;
             mouseY = e.clientY;
@@ -509,6 +595,9 @@
             targetRotateY += deltaX * 0.5;
             targetRotateX -= deltaY * 0.5;
 
+            // Limit vertical rotation
+            targetRotateX = Math.max(-30, Math.min(30, targetRotateX));
+
             mouseX = e.touches[0].clientX;
             mouseY = e.touches[0].clientY;
         });
@@ -530,7 +619,11 @@
             rotateX += (targetRotateX - rotateX) * 0.1;
             rotateY += (targetRotateY - rotateY) * 0.1;
 
-            avatar3d.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            // Update 3D transform
+            avatar3d.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.05)`;
+            
+            // Update visible angle based on Y rotation
+            updateVisibleAngle(rotateY);
 
             requestAnimationFrame(animate);
         }
