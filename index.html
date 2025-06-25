@@ -13,7 +13,7 @@
         }
 
         body {
-            background: #000;
+            background: #0a1628;
             overflow: hidden;
             font-family: 'Cinzel', serif;
             font-weight: 300;
@@ -62,15 +62,16 @@
             margin-top: 40px;
             font-size: 24px;
             letter-spacing: 8px;
-            color: #fff;
+            color: #e4d5b7;
             text-transform: uppercase;
             animation: fadeInOut 2s ease-in-out infinite;
+            text-shadow: 0 0 20px rgba(228, 213, 183, 0.5);
         }
 
         .loading-bar-container {
             width: 300px;
             height: 2px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(228, 213, 183, 0.1);
             margin: 30px auto;
             position: relative;
             overflow: hidden;
@@ -84,7 +85,7 @@
             height: 100%;
             background: linear-gradient(90deg, 
                 transparent, 
-                rgba(255, 255, 255, 0.8), 
+                rgba(228, 213, 183, 0.8), 
                 transparent
             );
             animation: scan 2s linear infinite;
@@ -215,15 +216,26 @@
                 const size = this.size * (1000 / this.z);
                 const opacity = this.brightness * (1 - this.z / 1000);
 
+                // Create slight color variation
+                const colorVariation = Math.random();
+                let color;
+                if (colorVariation > 0.7) {
+                    // Some stars with slight teal tint
+                    color = `rgba(200, 255, 240, ${opacity})`;
+                } else {
+                    // Most stars stay white/cream
+                    color = `rgba(255, 250, 240, ${opacity})`;
+                }
+
                 ctx.beginPath();
                 ctx.arc(x, y, size, 0, Math.PI * 2);
-                ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+                ctx.fillStyle = color;
                 ctx.fill();
 
                 // Add glow effect for brighter stars
                 if (this.brightness > 0.8) {
-                    ctx.shadowBlur = 10;
-                    ctx.shadowColor = 'white';
+                    ctx.shadowBlur = 15;
+                    ctx.shadowColor = colorVariation > 0.7 ? '#64ffda' : '#fff5e6';
                     ctx.fill();
                     ctx.shadowBlur = 0;
                 }
@@ -248,7 +260,15 @@
 
         // Animation loop
         function animate() {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+            // Create gradient background
+            const gradient = ctx.createRadialGradient(
+                canvas.width / 2, canvas.height / 2, 0,
+                canvas.width / 2, canvas.height / 2, canvas.width / 2
+            );
+            gradient.addColorStop(0, 'rgba(10, 22, 40, 0.3)');
+            gradient.addColorStop(1, 'rgba(10, 22, 40, 0.9)');
+            
+            ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             // Draw and update stars
@@ -257,8 +277,8 @@
                 star.draw();
             });
 
-            // Draw streaks for fast-moving stars
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+            // Draw streaks for fast-moving stars with teal tint
+            ctx.strokeStyle = 'rgba(100, 255, 218, 0.1)';
             ctx.lineWidth = 1;
             
             for (let i = 0; i < 5; i++) {
