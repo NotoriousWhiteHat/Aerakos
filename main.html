@@ -7,6 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -53,59 +54,140 @@ nav.scrolled{padding:20px 50px;background:rgba(0,28,47,0.95)}
 <div class="greek-pattern"></div>
 <nav id="navbar"><div class="nav-container"><img src="https://i.imgur.com/OCkpXbi.png" class="logo-nav"/><ul class="nav-links"><li><a href="#home">Pantheon</a></li><li><a href="#clan">The Clan</a></li><li><a href="#battles">Battles</a></li><li><a href="#join">Join Us</a></li></ul></div></nav>
 <section class="hero"><div class="hero-content"><p class="greek-title">ΚΛΑΝ ΑΕΡΑΚΟΣ</p><h1 class="clan-name">AERAKOS</h1><div class="founder-section"><div class="founder-container"><div class="avatar-wrapper"><div class="avatar-container" id="avatarContainer"><div class="greek-border"></div><div class="avatar-3d"><div class="avatar-frame"><div class="avatar-inner"><div class="loading-spinner" id="loadingSpinner"></div><canvas id="avatarCanvas"></canvas></div></div></div></div></div><div class="founder-info"><h2>RESTLESSSPELL</h2><p class="title">Archon of Aerakos</p><div class="greek-divider"></div></div></div></div></section>
+
 <script>
-let scene,camera,renderer,controls,model;
-function initAvatar(){
-const canvas=document.getElementById('avatarCanvas');
-const container=document.querySelector('.avatar-inner');
-const width=container.clientWidth,height=container.clientHeight;
-scene=new THREE.Scene();
-camera=new THREE.PerspectiveCamera(45,width/height,0.1,1000);
-camera.position.set(0,0,2.5);
-renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-renderer.setSize(width,height);
-renderer.setPixelRatio(window.devicePixelRatio);
-scene.add(new THREE.AmbientLight(0xffffff,0.6));
-const dir=new THREE.DirectionalLight(0xffffff,0.8);
-dir.position.set(5,5,5);
-scene.add(dir);
-controls=new THREE.OrbitControls(camera,renderer.domElement);
-controls.enableZoom=false;
-controls.enablePan=false;
-controls.target.set(0,0,0);
-document.getElementById('loadingSpinner').style.display='none';
-new THREE.OBJLoader().load('https://cdn.jsdelivr.net/gh/NotoriousWhiteHat/Aerakos@main/forjarmy%20(1).obj',object=>{
-const box=new THREE.Box3().setFromObject(object);
-const size=new THREE.Vector3();
-box.getSize(size);
-const maxAxis=Math.max(size.x,size.y,size.z);
-object.scale.multiplyScalar(1/maxAxis);
-box.setFromObject(object);
-const center=box.getCenter(new THREE.Vector3());
-object.position.sub(center);
-object.traverse(child=>{if(child.isMesh)child.material=new THREE.MeshPhongMaterial({color:0xdddddd});});
-model=object;
-scene.add(object);
-animate();
-});
+let scene, camera, renderer, controls, model;
+let autoRotateSpeed = 0.01;
+let isUserInteracting = false;
+let userInteractionTimer;
+
+function initAvatar() {
+    const canvas = document.getElementById('avatarCanvas');
+    const container = document.querySelector('.avatar-inner');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+
+    // Scene setup
+    scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
+    camera.position.set(0, 0, 2.5);
+
+    // Renderer setup
+    renderer = new THREE.WebGLRenderer({ 
+        canvas: canvas, 
+        antialias: true, 
+        alpha: true 
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(window.devicePixelRatio);
+
+    // Lighting setup
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+    directionalLight.position.set(5, 5, 5);
+    scene.add(directionalLight);
+
+    // Controls setup
+    controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableZoom = false;
+    controls.enablePan = false;
+    controls.target.set(0, 0, 0);
+    
+    // Auto-rotate settings
+    controls.autoRotate = true;
+    controls.autoRotateSpeed = 2;
+
+    // User interaction detection
+    controls.addEventListener('start', () => {
+        isUserInteracting = true;
+        controls.autoRotate = false;
+        clearTimeout(userInteractionTimer);
+    });
+
+    controls.addEventListener('end', () => {
+        clearTimeout(userInteractionTimer);
+        userInteractionTimer = setTimeout(() => {
+            isUserInteracting = false;
+            controls.autoRotate = true;
+        }, 3000); // Resume auto-rotate after 3 seconds of no interaction
+    });
+
+    // Hide loading spinner
+    document.getElementById('loadingSpinner').style.display = 'none';
+
+    // Load MTL and OBJ files
+    const mtlLoader = new THREE.MTLLoader();
+    mtlLoader.load(
+        'https://cdn.jsdelivr.net/gh/NotoriousWhiteHat/Aerakos@main/forjarmy.mtl',
+        (materials) => {
+            materials.preload();
+            
+            const objLoader = new THREE.OBJLoader();
+            objLoader.setMaterials(materials);
+            objLoader.load(
+                'https://cdn.jsdelivr.net/gh/NotoriousWhiteHat/Aerakos@main/forjarmy%20(1).obj',
+                (object) => {
+                    // Scale and center the model
+                    const box = new THREE.Box3().setFromObject(object);
+                    const size = new THREE.Vector3();
+                    box.getSize(size);
+                    const maxAxis = Math.max(size.x, size.y, size.z);
+                    object.scale.multiplyScalar(1 / maxAxis);
+                    
+                    box.setFromObject(object);
+                    const center = box.getCenter(new THREE.Vector3());
+                    object.position.sub(center);
+                    
+                    model = object;
+                    scene.add(object);
+                    animate();
+                },
+                (progress) => {
+                    // Loading progress
+                },
+                (error) => {
+                    console.error('OBJ loading error:', error);
+                }
+            );
+        },
+        (progress) => {
+            // MTL loading progress
+        },
+        (error) => {
+            console.error('MTL loading error:', error);
+        }
+    );
 }
-function animate(){
-requestAnimationFrame(animate);
-controls.update();
-renderer.render(scene,camera);
+
+function animate() {
+    requestAnimationFrame(animate);
+    
+    controls.update();
+    renderer.render(scene, camera);
 }
-window.addEventListener('load',initAvatar);
-window.addEventListener('resize',()=>{
-const container=document.querySelector('.avatar-inner');
-const w=container.clientWidth,h=container.clientHeight;
-camera.aspect=w/h;
-camera.updateProjectionMatrix();
-renderer.setSize(w,h);
+
+// Initialize on window load
+window.addEventListener('load', initAvatar);
+
+// Handle window resize
+window.addEventListener('resize', () => {
+    const container = document.querySelector('.avatar-inner');
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    
+    camera.aspect = width / height;
+    camera.updateProjectionMatrix();
+    renderer.setSize(width, height);
 });
-window.addEventListener('scroll',()=>{
-const nav=document.getElementById('navbar');
-if(window.scrollY>50)nav.classList.add('scrolled');
-else nav.classList.remove('scrolled');
+
+// Handle navbar scroll effect
+window.addEventListener('scroll', () => {
+    const navbar = document.getElementById('navbar');
+    if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+    } else {
+        navbar.classList.remove('scrolled');
+    }
 });
 </script>
 </body>
