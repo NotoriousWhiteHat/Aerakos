@@ -126,7 +126,6 @@
       const BASE = 'https://cdn.jsdelivr.net/gh/NotoriousWhiteHat/Aerakos@main/';
       new THREE.MTLLoader()
         .setResourcePath(BASE)
-        .setTexturePath(BASE)
         .load('forjarmy.mtl', materials => {
           materials.preload();
           new THREE.OBJLoader()
