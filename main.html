@@ -79,7 +79,7 @@ const box=new THREE.Box3().setFromObject(object);
 const size=new THREE.Vector3();
 box.getSize(size);
 const maxAxis=Math.max(size.x,size.y,size.z);
-object.scale.multiplyScalar(2.5/maxAxis);
+object.scale.multiplyScalar(1/maxAxis);
 box.setFromObject(object);
 const center=box.getCenter(new THREE.Vector3());
 object.position.sub(center);
