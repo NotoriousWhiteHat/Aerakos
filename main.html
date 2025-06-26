@@ -60,7 +60,7 @@ function initAvatar(){
     
     scene=new THREE.Scene();
     camera=new THREE.PerspectiveCamera(45,width/height,0.1,1000);
-    camera.position.set(0,0,2.5);
+    camera.position.set(0,0.2,3); // Better camera angle for character
     
     renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
     renderer.setSize(width,height);
@@ -91,23 +91,32 @@ function initAvatar(){
     // Load MTL file first, then OBJ
     const mtlLoader = new THREE.MTLLoader();
     
-    // Set the path for texture files (adjust this to your texture location)
+    // Set the path for texture files
+    mtlLoader.setResourcePath('https://raw.githubusercontent.com/NotoriousWhiteHat/Aerakos/main/');
     mtlLoader.setPath('https://raw.githubusercontent.com/NotoriousWhiteHat/Aerakos/main/');
     
     mtlLoader.load('forjarmy.mtl', materials => {
         console.log('MTL loaded successfully');
         materials.preload();
         
-        // Optional: Modify material properties for better appearance
+        // Debug: Log material info
+        console.log('Materials loaded:', materials.materials);
+        
+        // Fix texture loading issues
         for (let materialName in materials.materials) {
             const material = materials.materials[materialName];
+            console.log(`Material ${materialName}:`, material);
+            
             if (material.map) {
                 material.map.wrapS = THREE.RepeatWrapping;
                 material.map.wrapT = THREE.RepeatWrapping;
+                material.map.flipY = false; // Important for some models
+                console.log('Texture found for:', materialName, material.map.image?.src);
             }
+            
             // Enhance material properties
             material.shininess = 30;
-            material.transparent = true;
+            material.side = THREE.DoubleSide; // Show both sides
         }
         
         const objLoader = new THREE.OBJLoader();
@@ -117,16 +126,58 @@ function initAvatar(){
         objLoader.load('forjarmy%20(1).obj', object => {
             console.log('OBJ loaded successfully');
             
-            // Scale and center the model
+            // Load additional textures manually
+            const textureLoader = new THREE.TextureLoader();
+            const shirtTexture = textureLoader.load('https://raw.githubusercontent.com/NotoriousWhiteHat/Aerakos/main/shirt.png');
+            const pantTexture = textureLoader.load('https://raw.githubusercontent.com/NotoriousWhiteHat/Aerakos/main/pant.png');
+            
+            // Apply textures based on mesh position or name
+            object.traverse(child => {
+                if (child.isMesh) {
+                    console.log('Mesh material:', child.material);
+                    console.log('Mesh name:', child.name);
+                    console.log('Mesh position:', child.position);
+                    
+                    // Try to identify shirt vs pants by position or name
+                    const meshY = child.position.y;
+                    
+                    if (meshY > 0 || child.name.toLowerCase().includes('shirt') || child.name.toLowerCase().includes('torso')) {
+                        // Upper body - apply shirt texture
+                        child.material = new THREE.MeshPhongMaterial({
+                            map: shirtTexture,
+                            side: THREE.DoubleSide
+                        });
+                        console.log('Applied shirt texture to:', child.name);
+                    } else if (meshY <= 0 || child.name.toLowerCase().includes('pant') || child.name.toLowerCase().includes('leg')) {
+                        // Lower body - apply pants texture
+                        child.material = new THREE.MeshPhongMaterial({
+                            map: pantTexture,
+                            side: THREE.DoubleSide
+                        });
+                        console.log('Applied pant texture to:', child.name);
+                    } else {
+                        // Default material for other parts
+                        child.material = new THREE.MeshPhongMaterial({
+                            color: 0xcccccc,
+                            side: THREE.DoubleSide
+                        });
+                    }
+                    
+                    child.material.needsUpdate = true;
+                }
+            });
+            
+            // Scale and center the model properly
             const box = new THREE.Box3().setFromObject(object);
             const size = new THREE.Vector3();
             box.getSize(size);
             const maxAxis = Math.max(size.x, size.y, size.z);
-            object.scale.multiplyScalar(1.2 / maxAxis); // Slightly larger scale
+            object.scale.multiplyScalar(0.8 / maxAxis); // Better scale for character
             
             box.setFromObject(object);
             const center = box.getCenter(new THREE.Vector3());
             object.position.sub(center);
+            object.position.y += 0.1; // Adjust vertical position if needed
             
             // Enable shadows for the model
             object.traverse(child => {
