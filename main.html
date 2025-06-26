@@ -8,9 +8,9 @@
     href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap"
     rel="stylesheet"
   />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-  <script src="https://threejs.org/examples/js/loaders/MTLLoader.js"></script>
-  <script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/build/three.min.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
+  <script src="https://unpkg.com/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:#001c2f;color:#e4d5b7;font-family:'Cinzel',serif;font-weight:300;overflow-x:hidden;min-height:100vh}
@@ -23,7 +23,6 @@
     .nav-links a::after{content:'';position:absolute;bottom:-5px;left:0;width:0;height:2px;background:linear-gradient(90deg,transparent,#e4d5b7,transparent);transition:width .3s ease}
     .nav-links a:hover::after{width:100%}
     .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;position:relative;padding:120px 50px 80px}
-    .hero-content{text-align:center;max-width:1200px;width:100%}
     .greek-title{font-size:20px;letter-spacing:8px;margin-bottom:20px;opacity:.7;animation:fadeIn 1s ease}
     .clan-name{font-size:120px;font-weight:600;letter-spacing:15px;margin-bottom:30px;background:linear-gradient(135deg,#e4d5b7,#fff,#e4d5b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-fill-color:transparent;animation:shimmer 3s infinite linear;background-size:200% 200%;filter:drop-shadow(0 0 30px rgba(228,213,183,0.5))}
     @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
@@ -41,19 +40,12 @@
     #avatarCanvas{width:100%!important;height:100%!important;border-radius:50%}
     .loading-spinner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border:3px solid rgba(228,213,183,.3);border-top:3px solid #e4d5b7;border-radius:50%;animation:spin 1s linear infinite}
     @keyframes spin{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
-    .founder-info{text-align:left;animation:fadeIn 1s ease .9s both}
-    .founder-info h2{font-size:48px;margin-bottom:15px;letter-spacing:5px;font-weight:600}
-    .founder-info .title{font-size:20px;opacity:.8;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
-    .founder-info .title::before{content:'ΑΡΧΩΝ';display:block;font-size:16px;opacity:.6;margin-bottom:5px}
     .greek-divider{width:200px;height:2px;background:linear-gradient(90deg,transparent,#e4d5b7,transparent);margin:30px 0}
     .greek-ornament{position:absolute;font-size:60px;opacity:.1;color:#e4d5b7;animation:float 10s ease-in-out infinite}
-    .ornament-1{top:20%;left:10%;animation-delay:0s}
-    .ornament-2{top:70%;right:10%;animation-delay:3s}
-    .ornament-3{bottom:20%;left:15%;animation-delay:6s}
     @keyframes float{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-20px) rotate(10deg)}}
     @keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
     @keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-    @media(max-width:968px){.clan-name{font-size:72px}.founder-container{gap:50px}.founder-info{text-align:center}.greek-divider{margin:30px auto}}
+    @media(max-width:968px){.clan-name{font-size:72px}.founder-container{gap:50px}.avatar-container{margin:auto}.greek-divider{margin:30px auto}}
   </style>
 </head>
 <body>
@@ -73,7 +65,6 @@
     <div class="hero-content">
       <p class="greek-title">ΚΛΑΝ ΑΕΡΑΚΟΣ</p>
       <h1 class="clan-name">AERAKOS</h1>
-
       <div class="founder-section">
         <div class="founder-container">
           <div class="avatar-wrapper">
