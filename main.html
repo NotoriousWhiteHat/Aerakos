@@ -140,9 +140,6 @@ function initAvatar() {
                     const center = box.getCenter(new THREE.Vector3());
                     object.position.sub(center);
                     
-                    // Flip the model to face forward
-                    object.rotation.y = Math.PI;
-                    
                     // Fix material transparency issues
                     object.traverse((child) => {
                         if (child.isMesh) {
@@ -167,6 +164,10 @@ function initAvatar() {
                     
                     model = object;
                     scene.add(object);
+                    
+                    // Turn the model around so we see the front
+                    object.rotation.y = Math.PI;
+                    
                     animate();
                 },
                 (progress) => {
