@@ -1,218 +1,210 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Aerakos – Greek Clan</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap" rel="stylesheet"/>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-body{background:#001c2f;color:#e4d5b7;font-family:'Cinzel',serif;overflow-x:hidden}
-.bg-animation{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at top,rgba(0,40,70,0.4)0%,transparent 50%),radial-gradient(ellipse at bottom,rgba(0,28,47,0.4)0%,transparent 50%),#001c2f;z-index:-2}
-.greek-pattern{position:fixed;width:100%;height:100%;opacity:.03;background-image:repeating-linear-gradient(0deg,#e4d5b7 0px,transparent 1px,transparent 50px,#e4d5b7 51px),repeating-linear-gradient(90deg,#e4d5b7 0px,transparent 1px,transparent 50px,#e4d5b7 51px);z-index:-1}
-nav{position:fixed;top:0;width:100%;padding:30px 50px;background:linear-gradient(to bottom,rgba(0,28,47,0.9),transparent);backdrop-filter:blur(10px);z-index:1000;transition:all .3s ease}
-nav.scrolled{padding:20px 50px;background:rgba(0,28,47,0.95)}
-.nav-container{display:flex;justify-content:space-between;align-items:center;max-width:1400px;margin:0 auto}
-.logo-nav{height:60px;filter:drop-shadow(0 0 20px rgba(228,213,183,0.5))}
-.nav-links{display:flex;gap:40px;list-style:none}
-.nav-links a{color:#e4d5b7;text-decoration:none;font-size:14px;letter-spacing:3px;text-transform:uppercase;position:relative;transition:all .3s ease}
-.nav-links a::after{content:'';position:absolute;bottom:-5px;left:0;width:0;height:2px;background:linear-gradient(90deg,transparent,#e4d5b7,transparent);transition:width .3s ease}
-.nav-links a:hover::after{width:100%}
-.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 50px 80px;position:relative}
-.hero-content{text-align:center;max-width:1200px;width:100%}
-.greek-title{font-size:20px;letter-spacing:8px;margin-bottom:20px;opacity:.7;animation:fadeIn 1s ease}
-.clan-name{font-size:120px;font-weight:600;letter-spacing:15px;margin-bottom:30px;background:linear-gradient(135deg,#e4d5b7,#fff,#e4d5b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s infinite linear;background-size:200% 200%;filter:drop-shadow(0 0 30px rgba(228,213,183,0.5))}
-@keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
-@keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-.founder-section{margin:80px 0}
-.founder-container{display:flex;align-items:center;justify-content:center;gap:100px;flex-wrap:wrap}
-.avatar-wrapper{position:relative;animation:fadeIn 1s ease .6s both}
-.avatar-container{width:350px;height:350px;position:relative;cursor:grab}
-.avatar-container:active{cursor:grabbing}
-.greek-border{position:absolute;inset:-30px;border:3px solid #e4d5b7;border-radius:50%;opacity:.3;animation:rotate 20s linear infinite}
-.greek-border::before,.greek-border::after{content:'';position:absolute;inset:10px;border:1px solid #e4d5b7;border-radius:50%;opacity:.5}
-@keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.avatar-3d{width:100%;height:100%;transform-style:preserve-3d;transition:transform .1s ease;transform:perspective(1000px) rotateX(-10deg) rotateY(0deg)}
-.avatar-frame{width:100%;height:100%;background:radial-gradient(circle at center,rgba(228,213,183,.1),transparent),conic-gradient(from 0deg,#e4d5b7,#001c2f,#e4d5b7,#001c2f,#e4d5b7);border-radius:50%;display:flex;align-items:center;justify-content:center;padding:5px;box-shadow:0 0 30px rgba(228,213,183,.5),0 10px 40px rgba(0,0,0,.4)}
-.avatar-inner{width:100%;height:100%;background:#001c2f;border-radius:50%;padding:20px;display:flex;align-items:center;justify-content:center;overflow:hidden}
-#avatarCanvas{width:100%!important;height:100%!important;border-radius:50%}
-.loading-spinner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border:3px solid rgba(228,213,183,.3);border-top:3px solid #e4d5b7;border-radius:50%;animation:spin 1s linear infinite}
-@keyframes spin{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
-.founder-info{text-align:left;animation:fadeIn 1s ease .9s both}
-.founder-info h2{font-size:48px;margin-bottom:15px;letter-spacing:5px;font-weight:600}
-.founder-info .title{font-size:20px;opacity:.8;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
-.founder-info .title::before{content:'ΑΡΧΩΝ';display:block;font-size:16px;opacity:.6;margin-bottom:5px}
-.greek-divider{width:200px;height:2px;background:linear-gradient(90deg,transparent,#e4d5b7,transparent);margin:30px 0}
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>Aerakos – Greek Clan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{background:#001c2f;color:#e4d5b7;font-family:'Cinzel',serif;overflow-x:hidden}
+    .bg-animation{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at top,rgba(0,40,70,0.4)0%,transparent 50%),radial-gradient(ellipse at bottom,rgba(0,28,47,0.4)0%,transparent 50%),#001c2f;z-index:-2}
+    .greek-pattern{position:fixed;width:100%;height:100%;opacity:.03;background-image:repeating-linear-gradient(0deg,#e4d5b7 0px,transparent 1px,transparent 50px,#e4d5b7 51px),repeating-linear-gradient(90deg,#e4d5b7 0px,transparent 1px,transparent 50px,#e4d5b7 51px);z-index:-1}
+    nav{position:fixed;top:0;width:100%;padding:30px 50px;background:linear-gradient(to bottom,rgba(0,28,47,0.9),transparent);backdrop-filter:blur(10px);z-index:1000;transition:all .3s ease}
+    nav.scrolled{padding:20px 50px;background:rgba(0,28,47,0.95)}
+    .nav-container{display:flex;justify-content:space-between;align-items:center;max-width:1400px;margin:0 auto}
+    .logo-nav{height:60px;filter:drop-shadow(0 0 20px rgba(228,213,183,0.5))}
+    .nav-links{display:flex;gap:40px;list-style:none}
+    .nav-links a{color:#e4d5b7;text-decoration:none;font-size:14px;letter-spacing:3px;text-transform:uppercase;position:relative;transition:all .3s ease}
+    .nav-links a::after{content:'';position:absolute;bottom:-5px;left:0;width:0;height:2px;background:linear-gradient(90deg,transparent,#e4d5b7,transparent);transition:width .3s ease}
+    .nav-links a:hover::after{width:100%}
+    .hero{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:120px 50px 80px;position:relative}
+    .hero-content{text-align:center;max-width:1200px;width:100%}
+    .greek-title{font-size:20px;letter-spacing:8px;margin-bottom:20px;opacity:.7;animation:fadeIn 1s ease}
+    .clan-name{font-size:120px;font-weight:600;letter-spacing:15px;margin-bottom:30px;background:linear-gradient(135deg,#e4d5b7,#fff,#e4d5b7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;animation:shimmer 3s infinite linear;background-size:200% 200%;filter:drop-shadow(0 0 30px rgba(228,213,183,0.5))}
+    @keyframes shimmer{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+    .founder-section{margin:80px 0}
+    .founder-container{display:flex;align-items:center;justify-content:center;gap:100px;flex-wrap:wrap}
+    .avatar-wrapper{position:relative;animation:fadeIn 1s ease .6s both}
+    .avatar-container{width:350px;height:350px;position:relative;cursor:grab}
+    .avatar-container:active{cursor:grabbing}
+    .greek-border{position:absolute;inset:-30px;border:3px solid #e4d5b7;border-radius:50%;opacity:.3;animation:rotate 20s linear infinite}
+    .greek-border::before,.greek-border::after{content:'';position:absolute;inset:10px;border:1px solid #e4d5b7;border-radius:50%;opacity:.5}
+    @keyframes rotate{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+    .avatar-3d{width:100%;height:100%;transform-style:preserve-3d;transition:transform .1s ease;transform:perspective(1000px) rotateX(-10deg) rotateY(0deg)}
+    .avatar-frame{width:100%;height:100%;background:radial-gradient(circle at center,rgba(228,213,183,.1),transparent),conic-gradient(from 0deg,#e4d5b7,#001c2f,#e4d5b7,#001c2f,#e4d5b7);border-radius:50%;display:flex;align-items:center;justify-content:center;padding:5px;box-shadow:0 0 30px rgba(228,213,183,.5),0 10px 40px rgba(0,0,0,.4)}
+    .avatar-inner{width:100%;height:100%;background:#001c2f;border-radius:50%;padding:20px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+    #avatarCanvas{width:100%!important;height:100%!important;border-radius:50%}
+    .loading-spinner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border:3px solid rgba(228,213,183,.3);border-top:3px solid #e4d5b7;border-radius:50%;animation:spin 1s linear infinite}
+    @keyframes spin{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+    .founder-info{text-align:left;animation:fadeIn 1s ease .9s both}
+    .founder-info h2{font-size:48px;margin-bottom:15px;letter-spacing:5px;font-weight:600}
+    .founder-info .title{font-size:20px;opacity:.8;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+    .founder-info .title::before{content:'ΑΡΧΩΝ';display:block;font-size:16px;opacity:.6;margin-bottom:5px}
+    .greek-divider{width:200px;height:2px;background:linear-gradient(90deg,transparent,#e4d5b7,transparent);margin:30px 0}
+  </style>
 </head>
 <body>
-<div class="bg-animation"></div>
-<div class="greek-pattern"></div>
-<nav id="navbar"><div class="nav-container"><img src="https://i.imgur.com/OCkpXbi.png" class="logo-nav"/><ul class="nav-links"><li><a href="#home">Pantheon</a></li><li><a href="#clan">The Clan</a></li><li><a href="#battles">Battles</a></li><li><a href="#join">Join Us</a></li></ul></div></nav>
-<section class="hero"><div class="hero-content"><p class="greek-title">ΚΛΑΝ ΑΕΡΑΚΟΣ</p><h1 class="clan-name">AERAKOS</h1><div class="founder-section"><div class="founder-container"><div class="avatar-wrapper"><div class="avatar-container" id="avatarContainer"><div class="greek-border"></div><div class="avatar-3d"><div class="avatar-frame"><div class="avatar-inner"><div class="loading-spinner" id="loadingSpinner"></div><canvas id="avatarCanvas"></canvas></div></div></div></div></div><div class="founder-info"><h2>RESTLESSSPELL</h2><p class="title">Archon of Aerakos</p><div class="greek-divider"></div></div></div></div></section>
+  <div class="bg-animation"></div>
+  <div class="greek-pattern"></div>
+  <nav id="navbar">
+    <div class="nav-container">
+      <img src="https://i.imgur.com/OCkpXbi.png" class="logo-nav"/>
+      <ul class="nav-links">
+        <li><a href="#home">Pantheon</a></li>
+        <li><a href="#clan">The Clan</a></li>
+        <li><a href="#battles">Battles</a></li>
+        <li><a href="#join">Join Us</a></li>
+      </ul>
+    </div>
+  </nav>
+  <section class="hero">
+    <div class="hero-content">
+      <p class="greek-title" id="home">ΚΛΑΝ ΑΕΡΑΚΟΣ</p>
+      <h1 class="clan-name">AERAKOS</h1>
+      <div class="founder-section" id="clan">
+        <div class="founder-container">
+          <div class="avatar-wrapper">
+            <div class="avatar-container" id="avatarContainer">
+              <div class="greek-border"></div>
+              <div class="avatar-3d">
+                <div class="avatar-frame">
+                  <div class="avatar-inner">
+                    <div class="loading-spinner" id="loadingSpinner"></div>
+                    <canvas id="avatarCanvas"></canvas>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="founder-info">
+            <h2>RESTLESSSPELL</h2>
+            <p class="title">Archon of Aerakos</p>
+            <div class="greek-divider"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-<script>
-let scene, camera, renderer, controls, model;
-let autoRotateSpeed = 0.01;
-let isUserInteracting = false;
-let userInteractionTimer;
+  <script>
+    let scene, camera, renderer, controls, model;
+    let isUserInteracting = false, userInteractionTimer;
 
-function initAvatar() {
-    const canvas = document.getElementById('avatarCanvas');
-    const container = document.querySelector('.avatar-inner');
-    const width = container.clientWidth;
-    const height = container.clientHeight;
+    function initAvatar() {
+      const canvas = document.getElementById('avatarCanvas');
+      const container = document.querySelector('.avatar-inner');
+      const width = container.clientWidth, height = container.clientHeight;
 
-    // Scene setup
-    scene = new THREE.Scene();
-    camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
-    camera.position.set(0, 0, 2.5);
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, width/height, 0.1, 1000);
+      camera.position.set(0, 0, 2.5);
 
-    // Renderer setup
-    renderer = new THREE.WebGLRenderer({ 
-        canvas: canvas, 
-        antialias: true, 
-        alpha: true 
-    });
-    renderer.setSize(width, height);
-    renderer.setPixelRatio(window.devicePixelRatio);
+      renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+      renderer.setSize(width, height);
+      renderer.setPixelRatio(window.devicePixelRatio);
 
-    // Lighting setup
-    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-    const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
-    directionalLight.position.set(5, 5, 5);
-    scene.add(directionalLight);
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+      directionalLight.position.set(5,5,5);
+      scene.add(directionalLight);
 
-    // Controls setup
-    controls = new THREE.OrbitControls(camera, renderer.domElement);
-    controls.enableZoom = false;
-    controls.enablePan = false;
-    controls.target.set(0, 0, 0);
-    
-    // Auto-rotate settings
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 2;
+      controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableZoom = false;
+      controls.enablePan = false;
+      controls.target.set(0,0,0);
+      controls.autoRotate = true;
+      controls.autoRotateSpeed = 2;
 
-    // User interaction detection
-    controls.addEventListener('start', () => {
+      controls.addEventListener('start', () => {
         isUserInteracting = true;
         controls.autoRotate = false;
         clearTimeout(userInteractionTimer);
-    });
-
-    controls.addEventListener('end', () => {
+      });
+      controls.addEventListener('end', () => {
         clearTimeout(userInteractionTimer);
         userInteractionTimer = setTimeout(() => {
-            isUserInteracting = false;
-            controls.autoRotate = true;
-            // Smoothly return to original position
-            controls.reset();
-        }, 2000); // Resume auto-rotate after 2 seconds of no interaction
-    });
+          isUserInteracting = false;
+          controls.autoRotate = true;
+          controls.reset();
+        }, 2000);
+      });
 
-    // Hide loading spinner
-    document.getElementById('loadingSpinner').style.display = 'none';
+      document.getElementById('loadingSpinner').style.display = 'none';
 
-    // Load MTL and OBJ files
-    const mtlLoader = new THREE.MTLLoader();
-    mtlLoader.load(
+      const mtlLoader = new THREE.MTLLoader();
+      mtlLoader.load(
         'https://cdn.jsdelivr.net/gh/NotoriousWhiteHat/Aerakos@main/forjarmy.mtl',
         (materials) => {
-            materials.preload();
-            
-            const objLoader = new THREE.OBJLoader();
-            objLoader.setMaterials(materials);
-            objLoader.load(
-                'https://cdn.jsdelivr.net/gh/NotoriousWhiteHat/Aerakos@main/forjarmy%20(1).obj',
-                (object) => {
-                    // Scale and center the model
-                    const box = new THREE.Box3().setFromObject(object);
-                    const size = new THREE.Vector3();
-                    box.getSize(size);
-                    const maxAxis = Math.max(size.x, size.y, size.z);
-                    object.scale.multiplyScalar(1 / maxAxis);
-                    
-                    box.setFromObject(object);
-                    const center = box.getCenter(new THREE.Vector3());
-                    object.position.sub(center);
-                    
-                    // Fix material transparency issues
-                    object.traverse((child) => {
-                        if (child.isMesh) {
-                            // Ensure materials are not transparent
-                            if (child.material) {
-                                if (Array.isArray(child.material)) {
-                                    child.material.forEach(mat => {
-                                        mat.transparent = false;
-                                        mat.opacity = 1.0;
-                                        mat.alphaTest = 0;
-                                        mat.side = THREE.FrontSide;
-                                    });
-                                } else {
-                                    child.material.transparent = false;
-                                    child.material.opacity = 1.0;
-                                    child.material.alphaTest = 0;
-                                    child.material.side = THREE.FrontSide;
-                                }
-                            }
-                        }
-                    });
-                    
-                    model = object;
-                    scene.add(object);
-                    animate();
-                },
-                (progress) => {
-                    // Loading progress
-                },
-                (error) => {
-                    console.error('OBJ loading error:', error);
+          materials.preload();
+          const objLoader = new THREE.OBJLoader();
+          objLoader.setMaterials(materials);
+          objLoader.load(
+            'https://cdn.jsdelivr.net/gh/NotoriousWhiteHat/Aerakos@main/forjarmy%20(1).obj',
+            (object) => {
+              // Scale & center
+              const box = new THREE.Box3().setFromObject(object);
+              const size = new THREE.Vector3();
+              box.getSize(size);
+              const maxAxis = Math.max(size.x, size.y, size.z);
+              object.scale.multiplyScalar(1 / maxAxis);
+              box.setFromObject(object);
+              const center = box.getCenter(new THREE.Vector3());
+              object.position.sub(center);
+
+              // Flip model 180° so front faces camera
+              object.rotation.y = Math.PI;
+
+              // Fix materials
+              object.traverse((child) => {
+                if (child.isMesh && child.material) {
+                  const mats = Array.isArray(child.material) ? child.material : [child.material];
+                  mats.forEach(mat => {
+                    mat.transparent = false;
+                    mat.opacity = 1;
+                    mat.alphaTest = 0;
+                    mat.side = THREE.FrontSide;
+                  });
                 }
-            );
+              });
+
+              model = object;
+              scene.add(object);
+              animate();
+            },
+            undefined,
+            err => console.error('OBJ loading error:', err)
+          );
         },
-        (progress) => {
-            // MTL loading progress
-        },
-        (error) => {
-            console.error('MTL loading error:', error);
-        }
-    );
-}
-
-function animate() {
-    requestAnimationFrame(animate);
-    
-    controls.update();
-    renderer.render(scene, camera);
-}
-
-// Initialize on window load
-window.addEventListener('load', initAvatar);
-
-// Handle window resize
-window.addEventListener('resize', () => {
-    const container = document.querySelector('.avatar-inner');
-    const width = container.clientWidth;
-    const height = container.clientHeight;
-    
-    camera.aspect = width / height;
-    camera.updateProjectionMatrix();
-    renderer.setSize(width, height);
-});
-
-// Handle navbar scroll effect
-window.addEventListener('scroll', () => {
-    const navbar = document.getElementById('navbar');
-    if (window.scrollY > 50) {
-        navbar.classList.add('scrolled');
-    } else {
-        navbar.classList.remove('scrolled');
+        undefined,
+        err => console.error('MTL loading error:', err)
+      );
     }
-});
-</script>
+
+    function animate() {
+      requestAnimationFrame(animate);
+      controls.update();
+      renderer.render(scene, camera);
+    }
+
+    window.addEventListener('load', initAvatar);
+    window.addEventListener('resize', () => {
+      const container = document.querySelector('.avatar-inner');
+      camera.aspect = container.clientWidth / container.clientHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(container.clientWidth, container.clientHeight);
+    });
+    window.addEventListener('scroll', () => {
+      const nav = document.getElementById('navbar');
+      window.scrollY > 50
+        ? nav.classList.add('scrolled')
+        : nav.classList.remove('scrolled');
+    });
+  </script>
 </body>
 </html>
