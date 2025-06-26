@@ -7,7 +7,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap" rel="stylesheet"/>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/OBJLoader.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/MTLLoader.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
@@ -42,182 +41,71 @@ nav.scrolled{padding:20px 50px;background:rgba(0,28,47,0.95)}
 #avatarCanvas{width:100%!important;height:100%!important;border-radius:50%}
 .loading-spinner{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:50px;height:50px;border:3px solid rgba(228,213,183,.3);border-top:3px solid #e4d5b7;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{0%{transform:translate(-50%,-50%) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
-.loading-text{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);font-size:12px;color:#e4d5b7;opacity:0.7}
+.founder-info{text-align:left;animation:fadeIn 1s ease .9s both}
+.founder-info h2{font-size:48px;margin-bottom:15px;letter-spacing:5px;font-weight:600}
+.founder-info .title{font-size:20px;opacity:.8;letter-spacing:4px;text-transform:uppercase;margin-bottom:10px}
+.founder-info .title::before{content:'ΑΡΧΩΝ';display:block;font-size:16px;opacity:.6;margin-bottom:5px}
+.greek-divider{width:200px;height:2px;background:linear-gradient(90deg,transparent,#e4d5b7,transparent);margin:30px 0}
 </style>
 </head>
 <body>
 <div class="bg-animation"></div>
 <div class="greek-pattern"></div>
 <nav id="navbar"><div class="nav-container"><img src="https://i.imgur.com/OCkpXbi.png" class="logo-nav"/><ul class="nav-links"><li><a href="#home">Pantheon</a></li><li><a href="#clan">The Clan</a></li><li><a href="#battles">Battles</a></li><li><a href="#join">Join Us</a></li></ul></div></nav>
-<section class="hero"><div class="hero-content"><p class="greek-title">ΚΛΑΝ ΑΕΡΑΚΟΣ</p><h1 class="clan-name">AERAKOS</h1><div class="founder-section"><div class="founder-container"><div class="avatar-wrapper"><div class="avatar-container" id="avatarContainer"><div class="greek-border"></div><div class="avatar-3d"><div class="avatar-frame"><div class="avatar-inner"><div class="loading-spinner" id="loadingSpinner"></div><div class="loading-text" id="loadingText">Loading Textures...</div><canvas id="avatarCanvas"></canvas></div></div></div></div></div><div class="founder-info"><h2>RESTLESSSPELL</h2><p class="title">Archon of Aerakos</p><div class="greek-divider"></div></div></div></div></section>
+<section class="hero"><div class="hero-content"><p class="greek-title">ΚΛΑΝ ΑΕΡΑΚΟΣ</p><h1 class="clan-name">AERAKOS</h1><div class="founder-section"><div class="founder-container"><div class="avatar-wrapper"><div class="avatar-container" id="avatarContainer"><div class="greek-border"></div><div class="avatar-3d"><div class="avatar-frame"><div class="avatar-inner"><div class="loading-spinner" id="loadingSpinner"></div><canvas id="avatarCanvas"></canvas></div></div></div></div></div><div class="founder-info"><h2>RESTLESSSPELL</h2><p class="title">Archon of Aerakos</p><div class="greek-divider"></div></div></div></div></section>
 <script>
 let scene,camera,renderer,controls,model;
-
 function initAvatar(){
-    const canvas=document.getElementById('avatarCanvas');
-    const container=document.querySelector('.avatar-inner');
-    const width=container.clientWidth,height=container.clientHeight;
-    
-    scene=new THREE.Scene();
-    camera=new THREE.PerspectiveCamera(45,width/height,0.1,1000);
-    camera.position.set(0,0,2.5);
-    
-    renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
-    renderer.setSize(width,height);
-    renderer.setPixelRatio(window.devicePixelRatio);
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-    
-    // Enhanced lighting for better texture visibility
-    scene.add(new THREE.AmbientLight(0xffffff,0.4));
-    
-    const mainLight = new THREE.DirectionalLight(0xffffff,0.8);
-    mainLight.position.set(5,5,5);
-    mainLight.castShadow = true;
-    scene.add(mainLight);
-    
-    // Add rim lighting for better model definition
-    const rimLight = new THREE.DirectionalLight(0x4488ff,0.3);
-    rimLight.position.set(-5,0,5);
-    scene.add(rimLight);
-    
-    controls=new THREE.OrbitControls(camera,renderer.domElement);
-    controls.enableZoom=false;
-    controls.enablePan=false;
-    controls.target.set(0,0,0);
-    controls.autoRotate = true;
-    controls.autoRotateSpeed = 1;
-    
-    // Load MTL file first, then OBJ
-    const mtlLoader = new THREE.MTLLoader();
-    
-    // Set the path for texture files (adjust this to your texture location)
-    mtlLoader.setPath('https://raw.githubusercontent.com/NotoriousWhiteHat/Aerakos/main/');
-    
-    mtlLoader.load('forjarmy.mtl', materials => {
-        console.log('MTL loaded successfully');
-        materials.preload();
-        
-        // Optional: Modify material properties for better appearance
-        for (let materialName in materials.materials) {
-            const material = materials.materials[materialName];
-            if (material.map) {
-                material.map.wrapS = THREE.RepeatWrapping;
-                material.map.wrapT = THREE.RepeatWrapping;
-            }
-            // Enhance material properties
-            material.shininess = 30;
-            material.transparent = true;
-        }
-        
-        const objLoader = new THREE.OBJLoader();
-        objLoader.setMaterials(materials);
-        objLoader.setPath('https://raw.githubusercontent.com/NotoriousWhiteHat/Aerakos/main/');
-        
-        objLoader.load('forjarmy%20(1).obj', object => {
-            console.log('OBJ loaded successfully');
-            
-            // Scale and center the model
-            const box = new THREE.Box3().setFromObject(object);
-            const size = new THREE.Vector3();
-            box.getSize(size);
-            const maxAxis = Math.max(size.x, size.y, size.z);
-            object.scale.multiplyScalar(1.2 / maxAxis); // Slightly larger scale
-            
-            box.setFromObject(object);
-            const center = box.getCenter(new THREE.Vector3());
-            object.position.sub(center);
-            
-            // Enable shadows for the model
-            object.traverse(child => {
-                if (child.isMesh) {
-                    child.castShadow = true;
-                    child.receiveShadow = true;
-                }
-            });
-            
-            model = object;
-            scene.add(object);
-            
-            // Hide loading indicators
-            document.getElementById('loadingSpinner').style.display = 'none';
-            document.getElementById('loadingText').style.display = 'none';
-            
-            animate();
-        }, 
-        // Progress callback
-        progress => {
-            console.log('Loading progress:', (progress.loaded / progress.total * 100) + '%');
-        },
-        // Error callback
-        error => {
-            console.error('Error loading OBJ:', error);
-            document.getElementById('loadingText').textContent = 'Error loading model';
-        });
-    },
-    // Progress callback for MTL
-    progress => {
-        console.log('MTL loading progress:', progress);
-    },
-    // Error callback for MTL
-    error => {
-        console.error('Error loading MTL:', error);
-        document.getElementById('loadingText').textContent = 'Error loading textures';
-        
-        // Fallback: Load OBJ without materials
-        const objLoader = new THREE.OBJLoader();
-        objLoader.load('https://raw.githubusercontent.com/NotoriousWhiteHat/Aerakos/main/forjarmy%20(1).obj', object => {
-            console.log('OBJ loaded without textures');
-            
-            const box = new THREE.Box3().setFromObject(object);
-            const size = new THREE.Vector3();
-            box.getSize(size);
-            const maxAxis = Math.max(size.x, size.y, size.z);
-            object.scale.multiplyScalar(1.2 / maxAxis);
-            
-            box.setFromObject(object);
-            const center = box.getCenter(new THREE.Vector3());
-            object.position.sub(center);
-            
-            // Apply default material
-            object.traverse(child => {
-                if (child.isMesh) {
-                    child.material = new THREE.MeshPhongMaterial({
-                        color: 0xcccccc,
-                        shininess: 30
-                    });
-                }
-            });
-            
-            model = object;
-            scene.add(object);
-            document.getElementById('loadingSpinner').style.display = 'none';
-            document.getElementById('loadingText').textContent = 'Loaded without textures';
-            animate();
-        });
-    });
-}
-
-function animate(){
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene,camera);
-}
-
-window.addEventListener('load',initAvatar);
-
-window.addEventListener('resize',()=>{
-    const container=document.querySelector('.avatar-inner');
-    const w=container.clientWidth,h=container.clientHeight;
-    camera.aspect=w/h;
-    camera.updateProjectionMatrix();
-    renderer.setSize(w,h);
+const canvas=document.getElementById('avatarCanvas');
+const container=document.querySelector('.avatar-inner');
+const width=container.clientWidth,height=container.clientHeight;
+scene=new THREE.Scene();
+camera=new THREE.PerspectiveCamera(45,width/height,0.1,1000);
+camera.position.set(0,0,2.5);
+renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setSize(width,height);
+renderer.setPixelRatio(window.devicePixelRatio);
+scene.add(new THREE.AmbientLight(0xffffff,0.6));
+const dir=new THREE.DirectionalLight(0xffffff,0.8);
+dir.position.set(5,5,5);
+scene.add(dir);
+controls=new THREE.OrbitControls(camera,renderer.domElement);
+controls.enableZoom=false;
+controls.enablePan=false;
+controls.target.set(0,0,0);
+document.getElementById('loadingSpinner').style.display='none';
+new THREE.OBJLoader().load('https://cdn.jsdelivr.net/gh/NotoriousWhiteHat/Aerakos@main/forjarmy%20(1).obj',object=>{
+const box=new THREE.Box3().setFromObject(object);
+const size=new THREE.Vector3();
+box.getSize(size);
+const maxAxis=Math.max(size.x,size.y,size.z);
+object.scale.multiplyScalar(1/maxAxis);
+box.setFromObject(object);
+const center=box.getCenter(new THREE.Vector3());
+object.position.sub(center);
+object.traverse(child=>{if(child.isMesh)child.material=new THREE.MeshPhongMaterial({color:0xdddddd});});
+model=object;
+scene.add(object);
+animate();
 });
-
+}
+function animate(){
+requestAnimationFrame(animate);
+controls.update();
+renderer.render(scene,camera);
+}
+window.addEventListener('load',initAvatar);
+window.addEventListener('resize',()=>{
+const container=document.querySelector('.avatar-inner');
+const w=container.clientWidth,h=container.clientHeight;
+camera.aspect=w/h;
+camera.updateProjectionMatrix();
+renderer.setSize(w,h);
+});
 window.addEventListener('scroll',()=>{
-    const nav=document.getElementById('navbar');
-    if(window.scrollY>50)nav.classList.add('scrolled');
-    else nav.classList.remove('scrolled');
+const nav=document.getElementById('navbar');
+if(window.scrollY>50)nav.classList.add('scrolled');
+else nav.classList.remove('scrolled');
 });
 </script>
 </body>
