@@ -1,17 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Aerakos – Greek Clan</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Cinzel:wght@300;400;600&display=swap"
+    rel="stylesheet"
+  />
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://threejs.org/examples/js/loaders/MTLLoader.js"></script>
   <script src="https://threejs.org/examples/js/loaders/OBJLoader.js"></script>
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{background:#001c2f;color:#e4d5b7;font-family:'Cinzel',serif;font-weight:300;overflow-x:hidden;min-height:100vh}
-    .bg-animation{position:fixed;top:0;left:0;width:100%;height:100%;background:radial-gradient(ellipse at top,rgba(0,40,70,0.4)0%,transparent50%),radial-gradient(ellipse at bottom,rgba(0,28,47,0.4)0%,transparent50%),#001c2f;z-index:-2}
-    .greek-pattern{position:fixed;width:100%;height:100%;opacity:0.03;background-image:repeating-linear-gradient(0deg,#e4d5b7 0,transparent 1px,transparent 50px,#e4d5b7 51px),repeating-linear-gradient(90deg,#e4d5b7 0,transparent 1px,transparent 50px,#e4d5b7 51px);z-index:-1}
     nav{position:fixed;top:0;width:100%;padding:30px 50px;background:linear-gradient(to bottom,rgba(0,28,47,0.9),transparent);backdrop-filter:blur(10px);z-index:1000;transition:all .3s ease}
     nav.scrolled{padding:20px 50px;background:rgba(0,28,47,0.95)}
     .nav-container{display:flex;justify-content:space-between;align-items:center;max-width:1400px;margin:0 auto}
@@ -55,11 +57,9 @@
   </style>
 </head>
 <body>
-  <div class="bg-animation"></div>
-  <div class="greek-pattern"></div>
   <nav id="navbar">
     <div class="nav-container">
-      <img src="https://i.imgur.com/OCkpXbi.png" class="logo-nav" alt="">
+      <img src="https://i.imgur.com/OCkpXbi.png" class="logo-nav" alt="Aerakos">
       <ul class="nav-links">
         <li><a href="#home">Pantheon</a></li>
         <li><a href="#clan">The Clan</a></li>
@@ -68,10 +68,12 @@
       </ul>
     </div>
   </nav>
+
   <section class="hero">
     <div class="hero-content">
       <p class="greek-title">ΚΛΑΝ ΑΕΡΑΚΟΣ</p>
       <h1 class="clan-name">AERAKOS</h1>
+
       <div class="founder-section">
         <div class="founder-container">
           <div class="avatar-wrapper">
@@ -99,9 +101,11 @@
     <div class="greek-ornament ornament-2">🛡</div>
     <div class="greek-ornament ornament-3">⚡</div>
   </section>
+
   <script>
     let scene, camera, renderer, robloxModel;
     const userId = 26223338;
+    const proxyBase = 'https://billowing-cake-52a0.beamazed9000.workers.dev';
 
     function cdnUrl(hash) {
       let i = 31;
@@ -114,11 +118,11 @@
     function initThreeJS() {
       const canvas = document.getElementById('avatarCanvas');
       const container = document.querySelector('.avatar-inner');
-      const w = container.clientWidth - 40;
-      const h = container.clientHeight - 40;
+      const w = container.clientWidth;
+      const h = container.clientHeight;
       scene = new THREE.Scene();
       scene.background = null;
-      camera = new THREE.PerspectiveCamera(45, w / h, 0.1, 1000);
+      camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 1000);
       camera.position.set(0, 0, 5);
       renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
       renderer.setSize(w, h);
@@ -135,51 +139,62 @@
 
     async function loadRobloxAvatar() {
       try {
-        const res = await fetch(`https://thumbnails.roblox.com/v1/users/avatar-3d?userId=${userId}`);
-        if (!res.ok) throw new Error(res.statusText);
+        const res = await fetch(`${proxyBase}/api/avatar3d?userId=${userId}`);
         const { data } = await res.json();
         const req = data[0];
         if (req.state !== 'Completed') {
           setTimeout(loadRobloxAvatar, 2000);
           return;
         }
-        const md = await (await fetch(req.imageUrl)).json();
+        const md = await (await fetch(
+          `${proxyBase}/api/model?url=${encodeURIComponent(req.imageUrl)}`
+        )).json();
         const objUrl = cdnUrl(md.obj);
-        const texUrls = md.textures.map(cdnUrl);
-        loadOBJAndApplyTextures(objUrl, texUrls);
+        const mtlUrl = cdnUrl(md.mtl);
+        loadOBJWithMTL(objUrl, mtlUrl);
       } catch {
         createPlaceholderAvatar();
       }
     }
 
-    function loadOBJAndApplyTextures(objUrl, texUrls) {
+    function loadOBJWithMTL(objUrl, mtlUrl) {
       document.getElementById('loadingSpinner').style.display = 'none';
-      new THREE.OBJLoader().load(objUrl, o => {
-        const tl = new THREE.TextureLoader();
-        let i = 0;
-        o.traverse(c => {
-          if (c.isMesh) {
-            c.material = new THREE.MeshPhongMaterial({
-              map: tl.load(texUrls[i++] || texUrls[0]),
-              shininess: 30
+
+      new THREE.MTLLoader()
+        .setResourcePath('')
+        .load(
+          mtlUrl,
+          materials => {
+            materials.preload();
+            const manager = new THREE.LoadingManager();
+            manager.setURLModifier(url => {
+              const hash = url.split('.com/').pop();
+              return cdnUrl(hash);
             });
-          }
-        });
-        const center = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
-        o.position.sub(center);
-        scene.add(o);
-        robloxModel = o;
-        animate();
-      });
+            const objLoader = new THREE.OBJLoader(manager);
+            objLoader.setMaterials(materials);
+            objLoader.load(objUrl, onObjectLoaded, null, createPlaceholderAvatar);
+          },
+          null,
+          createPlaceholderAvatar
+        );
+    }
+
+    function onObjectLoaded(o) {
+      const center = new THREE.Box3().setFromObject(o).getCenter(new THREE.Vector3());
+      o.position.sub(center);
+      scene.add(o);
+      robloxModel = o;
+      animate();
     }
 
     function createPlaceholderAvatar() {
       document.getElementById('loadingSpinner').style.display = 'none';
-      const g = new THREE.BoxGeometry(1, 1, 1);
-      const m = new THREE.MeshPhongMaterial({ color: 0xe4d5b7, emissive: 0xe4d5b7, emissiveIntensity: 0.2 });
-      const c = new THREE.Mesh(g, m);
-      scene.add(c);
-      robloxModel = c;
+      const geo = new THREE.BoxGeometry(1, 1, 1);
+      const mat = new THREE.MeshPhongMaterial({ color: 0xe4d5b7, emissive: 0xe4d5b7, emissiveIntensity: 0.2 });
+      const cube = new THREE.Mesh(geo, mat);
+      scene.add(cube);
+      robloxModel = cube;
       animate();
     }
 
@@ -223,10 +238,10 @@
     avatarContainer.addEventListener('touchend', () => { isMouseDown = false; });
 
     window.addEventListener('resize', () => {
-      if (!camera || !renderer) return;
       const c = document.querySelector('.avatar-inner');
-      const w = c.clientWidth - 40, h = c.clientHeight - 40;
-      camera.aspect = w / h; camera.updateProjectionMatrix();
+      const w = c.clientWidth, h = c.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
       renderer.setSize(w, h);
     });
 
