@@ -162,12 +162,11 @@ function initAvatar() {
                         }
                     });
                     
-                    model = object;
-                    scene.add(object);
-                    
-                    // Turn the model around so we see the front
+                    // Turn the model around to face forward
                     object.rotation.y = Math.PI;
                     
+                    model = object;
+                    scene.add(object);
                     animate();
                 },
                 (progress) => {
