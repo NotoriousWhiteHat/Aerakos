@@ -109,7 +109,9 @@ function initAvatar() {
         userInteractionTimer = setTimeout(() => {
             isUserInteracting = false;
             controls.autoRotate = true;
-        }, 3000); // Resume auto-rotate after 3 seconds of no interaction
+            // Smoothly return to original position
+            controls.reset();
+        }, 2000); // Resume auto-rotate after 2 seconds of no interaction
     });
 
     // Hide loading spinner
@@ -137,6 +139,28 @@ function initAvatar() {
                     box.setFromObject(object);
                     const center = box.getCenter(new THREE.Vector3());
                     object.position.sub(center);
+                    
+                    // Fix material transparency issues
+                    object.traverse((child) => {
+                        if (child.isMesh) {
+                            // Ensure materials are not transparent
+                            if (child.material) {
+                                if (Array.isArray(child.material)) {
+                                    child.material.forEach(mat => {
+                                        mat.transparent = false;
+                                        mat.opacity = 1.0;
+                                        mat.alphaTest = 0;
+                                        mat.side = THREE.FrontSide;
+                                    });
+                                } else {
+                                    child.material.transparent = false;
+                                    child.material.opacity = 1.0;
+                                    child.material.alphaTest = 0;
+                                    child.material.side = THREE.FrontSide;
+                                }
+                            }
+                        }
+                    });
                     
                     model = object;
                     scene.add(object);
